@@ -1,5 +1,7 @@
 # Global Leads Platform — Technical Lead Test
 
+![Lead capture landing page — split hero with brand panel and accessible form card](docs/_assets/screenshot.png)
+
 Phase 1 reference implementation: a responsive, multilingual website with an
 accessible **lead capture form** and a server-side **lead handler** that validates,
 sanitises, stores, and routes leads by type + country of origin.
