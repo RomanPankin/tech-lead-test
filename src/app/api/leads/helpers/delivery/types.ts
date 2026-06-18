@@ -1,12 +1,12 @@
 import type { StoredLead } from '../types';
 
-export interface DeliveryResult {
+export type DeliveryResult = {
   ok: boolean;
   destination: string;
   error?: string;
 }
 
-export interface DeliveryAdapter {
+export type DeliveryAdapter = {
   readonly name: string;
   send(lead: StoredLead): Promise<DeliveryResult>;
 }
