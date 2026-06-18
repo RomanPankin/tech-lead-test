@@ -27,6 +27,14 @@ export const SUPPORTED_COUNTRIES = [
 /** Country of origin — derived server-side (geo-IP), never user input. */
 export type Country = (typeof SUPPORTED_COUNTRIES)[number];
 
+/**
+ * Lead type — the enquiry's intent. Set by the form/page context (e.g. a
+ * "Request a demo" page sends `sales`), not free-typed by the user. Together
+ * with country it determines which downstream system(s) receive the lead.
+ */
+export const LEAD_TYPES = ['sales', 'support', 'partnership', 'general'] as const;
+export type LeadType = (typeof LEAD_TYPES)[number];
+
 export const leadSchema = z.object({
   firstName: z.string().trim().min(1, 'First name is required').max(100),
   lastName: z.string().trim().min(1, 'Last name is required').max(100),
@@ -38,6 +46,8 @@ export const leadSchema = z.object({
   // Marketing referral / attribution data (e.g. "Google", utm payload).
   marketingReferral: z.string().trim().max(500).optional().default(''),
   notes: z.string().trim().max(2000).optional().default(''),
+  // Set by form/page context; drives routing alongside country.
+  leadType: z.enum(LEAD_TYPES).default('general'),
 });
 
 export type LeadInput = z.infer<typeof leadSchema>;

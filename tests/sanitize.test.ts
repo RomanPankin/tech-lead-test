@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeText, sanitizeLead } from '@/app/api/leads/helpers/sanitize';
+import { sanitizeText } from '@/app/api/leads/helpers/sanitizeText';
+import { sanitizeLead } from '@/app/api/leads/helpers/sanitizeLead';
 import type { LeadInput } from '@/lib/leadSchema';
 
 describe('sanitizeText', () => {
@@ -32,6 +33,7 @@ describe('sanitizeLead', () => {
       acceptTerms: true,
       marketingReferral: '<i>Google</i>',
       notes: 'hello <a href="#">world</a>',
+      leadType: 'general',
     };
     const clean = sanitizeLead(dirty);
     expect(clean.firstName).toBe('Ada');

@@ -7,9 +7,12 @@ sanitises, stores, and routes leads by type + country of origin.
 This repo contains both the **written deliverables** (`docs/`) and a **working
 project** (a Next.js app demonstrating the proposed stack).
 
+> The original brief is in [`TASK.md`](TASK.md).
+
 ```
 .
 ├── README.md
+├── TASK.md                 # Original brief
 ├── docs/
 │   ├── _assets/            # Mermaid sources for the diagrams
 │   ├── 1-solution.md       # Architecture, tech, plain-English summary, threat model
@@ -36,7 +39,7 @@ project** (a Next.js app demonstrating the proposed stack).
 | i18n           | next-intl (locale-prefixed routing, 10-market ready)                                 |
 | Forms          | React Hook Form + Zod (one schema shared client/server — and Phase 2 mobile)         |
 | Sanitisation   | isomorphic-dompurify                                                                 |
-| Anti-spam      | Cloudflare Turnstile (verify) + honeypot + per-IP rate limit                         |
+| Anti-spam      | Cloudflare Turnstile (client widget + server verify) + per-IP rate limit             |
 | Storage (demo) | File JSON-Lines store behind a `LeadStore` interface (prod → region-pinned Postgres) |
 | Tests          | Vitest                                                                               |
 | Lint/format    | ESLint (next/core-web-vitals) + Prettier                                             |
@@ -55,9 +58,14 @@ npm install
 cp .env.example .env.local   # optional — demo runs without any secrets
 ```
 
-All secrets are optional for local dev: with no Turnstile/email/CRM keys the app
-runs in **demo mode** (anti-spam verification is skipped but the honeypot + rate
-limit still apply, and delivery is simulated). Never run production without keys.
+All secrets are optional for local dev. With no keys:
+
+- **Turnstile** — the widget is not rendered and the server skips the challenge
+  **in development** (`npm run dev`); the per-IP rate limit still applies. In
+  **production** (`npm run build && npm start`) a missing `TURNSTILE_SECRET_KEY`
+  **fails closed** (every submit → `403`), so configure Turnstile before deploying.
+  Cloudflare provides always-pass/always-fail test keys for local testing.
+- **Email / CRM** — delivery is simulated (logged, marked delivered).
 
 ## Run
 
@@ -79,20 +87,22 @@ curl -i -X POST http://localhost:3100/api/leads \
     "firstName":"Ada","lastName":"Lovelace",
     "email":"ada@example.com","mobile":"+64 21 555 0000",
     "acceptTerms":true,"marketingReferral":"Google",
-    "notes":"Keen to hear more","country":"NZ",
-    "company_website":"","turnstileToken":""
+    "notes":"Keen to hear more","turnstileToken":""
   }'
 ```
+
+(Run against `npm run dev` so the Turnstile challenge is skipped; under `npm start`
+without keys this returns `403` by design — see the secrets note above.)
 
 A successful call returns `202 Accepted` with the lead id, and the record is appended
 to `data/leads.jsonl`. The handler:
 
-1. **Rate-limits** per IP and checks the **honeypot** + **anti-spam token**.
+1. **Rate-limits** per IP and **verifies the Turnstile token** (anti-spam).
 2. **Validates** the payload against the shared Zod schema.
 3. **Sanitises** every free-text field (strips HTML/scripts/control chars).
 4. **Persists** the lead as `pending` _before_ delivery (so nothing is lost on failure).
-5. **Routes** it by country to email and/or a 3rd-party CRM API, then marks it
-   `delivered` or `failed` (failed → retried / replayable).
+5. **Routes** it by **server-derived country** (geo-IP) to email and/or a 3rd-party
+   CRM API, then marks it `delivered` or `failed` (failed → retried / replayable).
 
 ## Scripts
 

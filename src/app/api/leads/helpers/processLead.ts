@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { sanitizeLead } from './sanitize';
+import { sanitizeLead } from './sanitizeLead';
 import { resolveDestinations, describeDestination } from './leadRouter';
 import { getLeadStore } from './storage';
 import type { LeadInput, Country } from '@/lib/leadSchema';
 import type { StoredLead, LeadStore } from './types';
 
-export interface HandleResult {
+export interface ProcessLeadResult {
   id: string;
   deliveryStatus: StoredLead['deliveryStatus'];
 }
@@ -20,12 +20,12 @@ export interface HandleResult {
  * (SQS/Cloud Tasks) with retry + dead-letter, rather than run inline. The
  * shape here mirrors that flow so the swap is mechanical.
  */
-export async function handleLead(
+export async function processLead(
   validated: LeadInput,
   country: Country,
   store: LeadStore = getLeadStore(),
   now: () => Date = () => new Date(),
-): Promise<HandleResult> {
+): Promise<ProcessLeadResult> {
   const clean = sanitizeLead(validated);
 
   const lead: StoredLead = {
@@ -33,7 +33,7 @@ export async function handleLead(
     country,
     id: randomUUID(),
     receivedAt: now().toISOString(),
-    destination: describeDestination(country),
+    destination: describeDestination(clean.leadType, country),
     deliveryStatus: 'pending',
     deliveryAttempts: 0,
   };
@@ -41,7 +41,7 @@ export async function handleLead(
   // Durable storage first — survives any delivery failure.
   await store.save(lead);
 
-  const adapters = resolveDestinations(country);
+  const adapters = resolveDestinations(clean.leadType, country);
   const results = await Promise.all(adapters.map((a) => a.send(lead)));
   const allOk = results.every((r) => r.ok);
 

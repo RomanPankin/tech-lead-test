@@ -106,7 +106,7 @@ behind an interface so the demo's file store and production's regional Postgres 
 interchangeable.
 
 **Security & anti-spam.** Defence in depth: a **WAF + bot management/DDoS** layer at the
-edge, **CAPTCHA (Cloudflare Turnstile)** plus a **honeypot field** and **per-IP rate
+edge, **CAPTCHA (Cloudflare Turnstile)** and **per-IP rate
 limiting** on the form, strict **input validation + sanitisation**, a strict
 **Content-Security-Policy** and security headers (HSTS, X-Content-Type-Options,
 frame-deny), and secrets held in a managed store/KMS — never in the client.
@@ -167,7 +167,7 @@ Think of the platform as a **multilingual shopfront with a smart reception desk.
 
 | Threat                     | Example                         | Control                                                                               |
 | -------------------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
-| **Spoofing**               | Bots/fake submissions           | Turnstile CAPTCHA, honeypot, rate limiting, WAF bot rules                             |
+| **Spoofing**               | Bots/fake submissions           | Turnstile CAPTCHA, rate limiting, WAF bot rules                                       |
 | **Tampering**              | XSS / injection via form fields | Strict Zod validation + HTML/script sanitisation, parameterised queries, CSP          |
 | **Repudiation**            | "I never consented"             | Timestamped consent + audit log on each lead record                                   |
 | **Information disclosure** | PII leak, secrets in client     | Encryption at rest/in transit, secrets in KMS, least-privilege access, no PII in logs |

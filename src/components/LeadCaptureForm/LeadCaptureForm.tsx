@@ -1,11 +1,15 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { Alert, Button, Checkbox, Textarea, TextInput } from '@mantine/core';
-import { leadSchema, type LeadInput } from '@/lib/leadSchema';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
+import { leadSchema, type LeadInput, type LeadType } from '@/lib/leadSchema';
 import { useLeadSubmit } from './useLeadSubmit';
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 type TextFieldConfig = {
   name: keyof LeadInput;
@@ -36,9 +40,18 @@ const FIELD_ROWS: TextFieldConfig[][] = [
 /**
  * Lead capture form
  */
-export function LeadCaptureForm() {
+/**
+ * @param leadType Intent of this form/page; routed alongside country. Defaults
+ *   to `general` — a "Request a demo" page would pass `sales`, etc.
+ */
+export function LeadCaptureForm({ leadType = 'general' }: { leadType?: LeadType } = {}) {
   const t = useTranslations('LeadForm');
   const { status, submit } = useLeadSubmit();
+
+  // Cloudflare Turnstile token. Required to submit when a site key is
+  // configured; when it isn't (local dev), the challenge is skipped.
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const {
     register,
@@ -50,8 +63,14 @@ export function LeadCaptureForm() {
   });
 
   const onSubmit = async (data: LeadInput) => {
-    const ok = await submit(data);
-    if (ok) reset();
+    const ok = await submit({ ...data, leadType }, turnstileToken);
+    if (ok) {
+      reset();
+    } else {
+      // Token is single-use; force a fresh challenge before any retry.
+      turnstileRef.current?.reset();
+      setTurnstileToken('');
+    }
   };
 
   const renderField = (f: TextFieldConfig) => {
@@ -112,7 +131,24 @@ export function LeadCaptureForm() {
         {...register('acceptTerms')}
       />
 
-      <Button type="submit" fullWidth mt="xs" loading={status === 'submitting'}>
+      {TURNSTILE_SITE_KEY && (
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={TURNSTILE_SITE_KEY}
+          onSuccess={setTurnstileToken}
+          onExpire={() => setTurnstileToken('')}
+          onError={() => setTurnstileToken('')}
+          options={{ size: 'flexible' }}
+        />
+      )}
+
+      <Button
+        type="submit"
+        fullWidth
+        mt="xs"
+        loading={status === 'submitting'}
+        disabled={!!TURNSTILE_SITE_KEY && !turnstileToken}
+      >
         {t('submit')}
       </Button>
     </form>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { leadRequestSchema } from '@/lib/leadSchema';
-import { handleLead } from './helpers/handleLead';
+import { processLead } from './helpers/processLead';
 import { rateLimit } from './helpers/rateLimit';
 import { verifyTurnstile } from './helpers/antispam';
 import { detectCountry } from './helpers/geo';
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   const country = detectCountry(req.headers);
 
   try {
-    const result = await handleLead(lead, country);
+    const result = await processLead(lead, country);
 
     // 202: accepted + durably stored, even if downstream delivery is retrying.
     return NextResponse.json({ id: result.id, status: result.deliveryStatus }, { status: 202 });

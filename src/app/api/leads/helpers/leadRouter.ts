@@ -1,39 +1,52 @@
-import type { Country } from '@/lib/leadSchema';
+import type { Country, LeadType } from '@/lib/leadSchema';
 import { EmailAdapter, CrmApiAdapter, type DeliveryAdapter } from './delivery';
 
+type Channel = 'email' | 'crm-api';
+
 /**
- * Routing decides which downstream system(s) a lead is sent to, based on the
- * lead's country of origin (and, in a fuller build, lead type/product line).
+ * Routing decides which downstream system(s) a lead is sent to, based on BOTH
+ * the lead type (intent) and the country of origin.
  *
- * Modelled as a declarative table so adding a market or changing where its
- * leads go is a config change, not a code change. Countries not listed fall
- * back to email.
+ * - `TYPE_ROUTING` picks the base channel(s) for the intent (e.g. sales → CRM).
+ * - `COUNTRY_ROUTING` adds market-specific channels (e.g. a local CRM required
+ *   for data residency), unioned with the type channels.
+ *
+ * Both are declarative tables, so onboarding a market or changing where a lead
+ * type goes is a config change, not a code change.
  */
-const ROUTING_TABLE: Record<string, ('email' | 'crm-api')[]> = {
+const TYPE_ROUTING: Record<LeadType, Channel[]> = {
+  sales: ['crm-api'],
+  support: ['email'],
+  partnership: ['email', 'crm-api'],
+  general: ['email'],
+};
+
+const COUNTRY_ROUTING: Partial<Record<Country, Channel[]>> = {
   NZ: ['email', 'crm-api'],
   AU: ['crm-api'],
   US: ['crm-api'],
   GB: ['crm-api'],
-  FR: ['email'],
-  DE: ['email'],
-  JP: ['crm-api'],
-  SG: ['crm-api'],
-  CA: ['crm-api'],
-  AE: ['email'],
 };
 
-const adapters: Record<'email' | 'crm-api', DeliveryAdapter> = {
+// Canonical order so destinations are deterministic regardless of table order.
+const CHANNEL_ORDER: Channel[] = ['email', 'crm-api'];
+
+const adapters: Record<Channel, DeliveryAdapter> = {
   email: new EmailAdapter(),
   'crm-api': new CrmApiAdapter(),
 };
 
-/** Resolve the ordered list of delivery adapters for a country of origin. */
-export function resolveDestinations(country: Country): DeliveryAdapter[] {
-  const channels = ROUTING_TABLE[country] ?? ['email'];
-  return channels.map((c) => adapters[c]);
+function resolveChannels(leadType: LeadType, country: Country): Channel[] {
+  const set = new Set<Channel>([...TYPE_ROUTING[leadType], ...(COUNTRY_ROUTING[country] ?? [])]);
+  return CHANNEL_ORDER.filter((c) => set.has(c));
+}
+
+/** Resolve the ordered list of delivery adapters for a lead type + country. */
+export function resolveDestinations(leadType: LeadType, country: Country): DeliveryAdapter[] {
+  return resolveChannels(leadType, country).map((c) => adapters[c]);
 }
 
 /** Human-readable summary of where a lead will be sent (stored on the record). */
-export function describeDestination(country: Country): string {
-  return (ROUTING_TABLE[country] ?? ['email']).join('+') + `:${country}`;
+export function describeDestination(leadType: LeadType, country: Country): string {
+  return `${resolveChannels(leadType, country).join('+')}:${leadType}@${country}`;
 }

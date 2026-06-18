@@ -1,12 +1,13 @@
 /**
  * Verify a Cloudflare Turnstile token server-side.
  *
- * If TURNSTILE_SECRET_KEY is unset (local dev / demo) verification is skipped
- * and we rely on the honeypot + rate limiter. Never skip in production.
+ * If TURNSTILE_SECRET_KEY is unset the challenge is skipped in development
+ * (local dev / demo), but fails closed in production — a missing secret there
+ * is a misconfiguration, not a reason to wave traffic through.
  */
 export async function verifyTurnstile(token: string, ip?: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) return true; // demo mode
+  if (!secret) return process.env.NODE_ENV !== 'production';
 
   if (!token) return false;
 

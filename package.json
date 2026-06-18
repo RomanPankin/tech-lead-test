@@ -19,6 +19,7 @@
     "@hookform/resolvers": "3.9.0",
     "@mantine/core": "^7.17.8",
     "@mantine/hooks": "^7.17.8",
+    "@marsidev/react-turnstile": "^1.5.3",
     "@tabler/icons-react": "^3.44.0",
     "isomorphic-dompurify": "2.14.0",
     "next": "14.2.5",

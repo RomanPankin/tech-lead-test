@@ -11,14 +11,14 @@ export type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
 export function useLeadSubmit() {
   const [status, setStatus] = useState<SubmitStatus>('idle');
 
-  async function submit(data: LeadInput): Promise<boolean> {
+  async function submit(data: LeadInput, turnstileToken: string): Promise<boolean> {
     setStatus('submitting');
 
     try {
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...data, company_website: '', turnstileToken: '' }),
+        body: JSON.stringify({ ...data, turnstileToken }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

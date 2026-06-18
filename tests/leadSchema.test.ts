@@ -33,6 +33,15 @@ describe('leadSchema', () => {
     const parsed = leadSchema.parse({ ...valid, country: 'US' });
     expect('country' in parsed).toBe(false);
   });
+
+  it('defaults leadType to general and accepts a valid type', () => {
+    expect(leadSchema.parse(valid).leadType).toBe('general');
+    expect(leadSchema.parse({ ...valid, leadType: 'sales' }).leadType).toBe('sales');
+  });
+
+  it('rejects an unknown leadType', () => {
+    expect(leadSchema.safeParse({ ...valid, leadType: 'spam' }).success).toBe(false);
+  });
 });
 
 describe('leadRequestSchema', () => {
