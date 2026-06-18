@@ -20,11 +20,13 @@ project** (a Next.js app demonstrating the proposed stack).
 ├── src/
 │   ├── app/
 │   │   ├── [locale]/       # Localised pages (en, mi, fr, de) + SEO/social meta + JSON-LD
-│   │   ├── api/leads/      # Lead capture API route (form handler)
+│   │   ├── api/leads/      # Lead capture route + helpers/ (sanitise, store,
+│   │   │                   #   route, deliver, geo, anti-spam, rate-limit)
 │   │   └── globals.css
-│   ├── components/         # Accessible LeadCaptureForm
+│   ├── components/         # Landing, LanguageSwitcher, LeadCaptureForm/
 │   ├── i18n/               # next-intl routing/config/navigation
-│   ├── lib/                # Validation, sanitisation, storage, routing, delivery
+│   ├── lib/                # leadSchema — Zod contract shared client/server/mobile
+│   ├── theme.ts            # Mantine theme
 │   └── middleware.ts       # Locale negotiation
 ├── messages/               # Translation catalogues per locale
 ├── tests/                  # Vitest unit tests
@@ -130,14 +132,14 @@ below sits behind a clean seam (`LeadStore`, `DeliveryAdapter`, the geo/rate-lim
 helpers) so production wiring is a swap, not a rewrite. Full design in
 [`docs/1-solution.md`](docs/1-solution.md).
 
-| Concern | Demo (here) | Production assumption |
-| --- | --- | --- |
-| **Lead storage** | Appends to a local JSONL file on disk (`data/leads.jsonl`) | **No disk writes.** Region-pinned, encrypted Postgres/RDS per the lead's jurisdiction (data residency) |
-| **Rate limiting** | In-memory map, per-process (resets on restart, not shared across instances) | Enforced at the **edge / WAF** and/or a shared **Redis** (e.g. Upstash) so limits hold across horizontally-scaled instances |
-| **Client IP** | Reads `x-forwarded-for` (spoofable, app-tier) | Trust the **edge's** verified header — Cloudflare `cf-connecting-ip` (or `x-vercel-forwarded-for`) — not arbitrary client input |
-| **Country / geo** | `x-vercel-ip-country` / `cf-ipcountry`, falls back to `NZ` | Same edge geo-IP headers, guaranteed present + trusted at the CDN/WAF boundary |
-| **Anti-spam** | Turnstile skipped in dev (fails closed in prod); no WAF | **Cloudflare Turnstile** keys configured + **WAF bot rules / DDoS** at the edge |
-| **Delivery** | Adapters run **inline** in the request, email/CRM calls simulated when keys absent | Enqueued on a **durable queue (SQS / Cloud Tasks)** with retry + **dead-letter queue**, processed by a worker |
-| **CMS & live feed** | Not wired (content is static) | Headless CMS (Sanity/Contentful) + server-proxied 3rd-party feed with caching/revalidation |
-| **Observability** | `console.error` only | OpenTelemetry logs/metrics/traces → Datadog/Grafana + Sentry, SLO-based alerting |
-| **Secrets** | `.env.local` | Managed secret store / KMS |
+| Concern             | Demo (here)                                                                        | Production assumption                                                                                                           |
+| ------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Lead storage**    | Appends to a local JSONL file on disk (`data/leads.jsonl`)                         | **No disk writes.** Region-pinned, encrypted Postgres/RDS per the lead's jurisdiction (data residency)                          |
+| **Rate limiting**   | In-memory map, per-process (resets on restart, not shared across instances)        | Enforced at the **edge / WAF** and/or a shared **Redis** (e.g. Upstash) so limits hold across horizontally-scaled instances     |
+| **Client IP**       | Reads `x-forwarded-for` (spoofable, app-tier)                                      | Trust the **edge's** verified header — Cloudflare `cf-connecting-ip` (or `x-vercel-forwarded-for`) — not arbitrary client input |
+| **Country / geo**   | `x-vercel-ip-country` / `cf-ipcountry`, falls back to `NZ`                         | Same edge geo-IP headers, guaranteed present + trusted at the CDN/WAF boundary                                                  |
+| **Anti-spam**       | Turnstile skipped in dev (fails closed in prod); no WAF                            | **Cloudflare Turnstile** keys configured + **WAF bot rules / DDoS** at the edge                                                 |
+| **Delivery**        | Adapters run **inline** in the request, email/CRM calls simulated when keys absent | Enqueued on a **durable queue (SQS / Cloud Tasks)** with retry + **dead-letter queue**, processed by a worker                   |
+| **CMS & live feed** | Not wired (content is static)                                                      | Headless CMS (Sanity/Contentful) + server-proxied 3rd-party feed with caching/revalidation                                      |
+| **Observability**   | `console.error` only                                                               | OpenTelemetry logs/metrics/traces → Datadog/Grafana + Sentry, SLO-based alerting                                                |
+| **Secrets**         | `.env.local`                                                                       | Managed secret store / KMS                                                                                                      |
