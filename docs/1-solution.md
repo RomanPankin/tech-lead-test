@@ -82,7 +82,7 @@ flowchart TB
 
 - **Pipeline:** **validate (Zod) → sanitise (strip HTML/scripts/control chars) → persist → route**.
 - **Durability:** lead is **stored _before_ any delivery is attempted** → satisfies "store leads in case of delivery failure".
-- **Routing:** declarative table keyed by **lead type + country of origin** → transactional **email**, **3rd-party CRM/API**, or both.
+- **Routing:** declarative table keyed by **lead type + country of origin** → transactional **email**, **3rd-party CRM/API**, or both. Country is **derived server-side from edge geo-IP** (`x-vercel-ip-country` / `cf-ipcountry`), never user input; lead type comes from the form/page context.
 - **Resilience:** delivery via **durable queue + retry + dead-letter queue**; exhausted failures stay flagged for manual replay — no lead silently lost.
 
 ### Data residency & privacy

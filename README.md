@@ -80,6 +80,10 @@ npm run dev
 Open <http://localhost:3100/en> (also `/mi`, `/fr`, `/de`). The root `/` redirects
 to a negotiated locale. (Server runs on port **3100** — set in the `dev`/`start` scripts.)
 
+> **Locales:** `en`, `mi`, `fr`, `de` ship as a **representative subset** of the
+> brief's 10 markets. Adding a market is config-driven — one entry in
+> `src/i18n/routing.ts` plus a `messages/<locale>.json` file.
+
 ## Try the lead handler
 
 Submit the form in the browser, or hit the API directly:
