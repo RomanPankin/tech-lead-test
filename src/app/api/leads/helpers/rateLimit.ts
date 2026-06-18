@@ -23,5 +23,6 @@ export function rateLimit(key: string): { ok: boolean; retryAfter: number } {
   if (entry.count > MAX_REQUESTS) {
     return { ok: false, retryAfter: Math.ceil((entry.resetAt - now) / 1000) };
   }
+
   return { ok: true, retryAfter: 0 };
 }

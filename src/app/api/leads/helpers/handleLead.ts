@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { sanitizeLead } from './sanitize';
 import { resolveDestinations, describeDestination } from './leadRouter';
 import { getLeadStore } from './storage';
-import type { LeadInput } from './leadSchema';
+import type { LeadInput, Country } from '@/lib/leadSchema';
 import type { StoredLead, LeadStore } from './types';
 
 export interface HandleResult {
@@ -22,6 +22,7 @@ export interface HandleResult {
  */
 export async function handleLead(
   validated: LeadInput,
+  country: Country,
   store: LeadStore = getLeadStore(),
   now: () => Date = () => new Date(),
 ): Promise<HandleResult> {
@@ -29,9 +30,10 @@ export async function handleLead(
 
   const lead: StoredLead = {
     ...clean,
+    country,
     id: randomUUID(),
     receivedAt: now().toISOString(),
-    destination: describeDestination(clean),
+    destination: describeDestination(country),
     deliveryStatus: 'pending',
     deliveryAttempts: 0,
   };
@@ -39,7 +41,7 @@ export async function handleLead(
   // Durable storage first — survives any delivery failure.
   await store.save(lead);
 
-  const adapters = resolveDestinations(clean);
+  const adapters = resolveDestinations(country);
   const results = await Promise.all(adapters.map((a) => a.send(lead)));
   const allOk = results.every((r) => r.ok);
 
@@ -52,6 +54,7 @@ export async function handleLead(
     .filter((r) => !r.ok)
     .map((r) => `${r.destination}: ${r.error ?? 'unknown'}`)
     .join('; ');
+
   // Stays 'failed' in storage → picked up by retry worker.
   await store.updateStatus(lead.id, 'failed', errors);
   return { id: lead.id, deliveryStatus: 'failed' };

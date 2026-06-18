@@ -1,105 +1,72 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import {
-  Box,
-  Container,
-  Grid,
-  Group,
-  List,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-  Title,
-} from '@mantine/core';
 import { IconCheck, IconShieldLock, IconSparkles } from '@tabler/icons-react';
-import LeadCaptureForm from '@/components/lead-form/LeadCaptureForm';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { LeadCaptureForm } from '@/components/LeadCaptureForm';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 /**
- * Landing page UI (split hero + form card). Client component because Mantine's
- * compound components (Grid.Col, List.Item) can't be rendered from a React
- * Server Component. Locale is already set by the server page that renders this.
+ * Landing page
  */
-export default function Landing() {
+export function Landing() {
   const t = useTranslations('Home');
   const benefits = [t('benefit1'), t('benefit2'), t('benefit3')];
 
   return (
-    <Box className="flex min-h-screen flex-col bg-gradient-to-br from-indigo-700 via-indigo-600 to-violet-600">
-      <a href="#lead-form" className="skip-link">
-        Skip to form
-      </a>
+    <div className="flex min-h-screen flex-col bg-gradient-to-br from-blue-700 via-indigo-700 to-indigo-800">
       <div className="flex w-full flex-1 items-center justify-center">
-        <Container size="lg" py={{ base: 40, md: 80 }} className="w-full">
-          <Grid gutter={{ base: 40, md: 64 }} align="center">
-            {/* Brand / value panel */}
-            <Grid.Col span={{ base: 12, md: 5 }}>
-              <Stack gap="lg">
-                <Group gap="sm">
-                  <ThemeIcon variant="white" radius="md" size="lg">
-                    <IconSparkles size={20} />
-                  </ThemeIcon>
-                  <Text fw={700} fz="lg" c="white">
-                    {t('brand')}
-                  </Text>
-                </Group>
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 py-10 md:grid-cols-12 md:gap-16 md:py-20">
+          {/* Brand / value panel */}
+          <div className="flex flex-col gap-5 md:col-span-5">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-white text-slate-700">
+                <IconSparkles size={20} />
+              </span>
+              <span className="text-lg font-bold text-white">{t('brand')}</span>
+            </div>
 
-                <Text tt="uppercase" fw={600} fz="sm" c="indigo.2" className="tracking-[0.08em]">
-                  {t('eyebrow')}
-                </Text>
-                <Title order={1} c="white" fz={{ base: 32, md: 46 }} lh={1.08}>
-                  {t('title')}
-                </Title>
-                <Text c="indigo.1" fz="lg" maw={460} visibleFrom="md">
-                  {t('intro')}
-                </Text>
+            <p className="m-0 text-sm font-semibold uppercase tracking-[0.08em] text-slate-300">
+              {t('eyebrow')}
+            </p>
+            <h1 className="m-0 text-3xl font-bold leading-tight text-white md:text-5xl">
+              {t('title')}
+            </h1>
+            <p className="m-0 hidden max-w-[460px] text-lg text-slate-200 md:block">{t('intro')}</p>
 
-                <List
-                  spacing="sm"
-                  c="white"
-                  visibleFrom="md"
-                  icon={
-                    <ThemeIcon color="teal" radius="xl" size={22}>
-                      <IconCheck size={14} stroke={3} />
-                    </ThemeIcon>
-                  }
-                >
-                  {benefits.map((b) => (
-                    <List.Item key={b}>{b}</List.Item>
-                  ))}
-                </List>
-              </Stack>
-            </Grid.Col>
+            <ul className="m-0 hidden list-none space-y-3 p-0 text-white md:block">
+              {benefits.map((b) => (
+                <li key={b} className="flex items-start gap-3">
+                  <span className="inline-flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-teal-500 text-white">
+                    <IconCheck size={14} stroke={3} />
+                  </span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            {/* Form card */}
-            <Grid.Col span={{ base: 12, md: 7 }}>
-              <Paper shadow="xl" radius="lg" withBorder className="p-7 sm:p-10">
-                <Stack gap={2} mb="md">
-                  <Title order={2} fz={{ base: 20, sm: 24 }}>
-                    {t('formTitle')}
-                  </Title>
-                  <Text c="dimmed" fz="sm">
-                    {t('formIntro')}
-                  </Text>
-                </Stack>
+          {/* Form card */}
+          <div className="md:col-span-7">
+            <div className="rounded-xl border border-slate-200 bg-white p-7 shadow-xl sm:p-10">
+              <div className="mb-4 flex flex-col gap-1">
+                <h2 className="m-0 text-xl font-bold text-slate-900 sm:text-2xl">
+                  {t('formTitle')}
+                </h2>
+                <p className="m-0 text-sm text-slate-500">{t('formIntro')}</p>
+              </div>
 
-                <LeadCaptureForm />
+              <LeadCaptureForm />
 
-                <Group gap={6} mt="md" c="dimmed">
-                  <IconShieldLock size={16} />
-                  <Text fz="xs" c="dimmed">
-                    {t('secured')}
-                  </Text>
-                </Group>
-              </Paper>
-            </Grid.Col>
-          </Grid>
-        </Container>
+              <div className="mt-4 flex items-center gap-1.5 text-slate-500">
+                <IconShieldLock size={16} />
+                <span className="text-xs">{t('secured')}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      
+
       <LanguageSwitcher />
-    </Box>
+    </div>
   );
 }

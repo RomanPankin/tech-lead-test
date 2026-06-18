@@ -4,9 +4,10 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Inter } from 'next/font/google';
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
-import '@mantine/core/styles.css';
 import { routing, type Locale } from '@/i18n/routing';
 import { theme } from '@/theme';
+
+import '@mantine/core/styles.css';
 import '../globals.css';
 
 const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
@@ -28,6 +29,7 @@ export async function generateMetadata({
   params: { locale: string };
 }): Promise<Metadata> {
   const languages = Object.fromEntries(routing.locales.map((l) => [l, `${SITE_URL}/${l}`]));
+
   return {
     metadataBase: new URL(SITE_URL),
     title: 'Global Leads Platform',

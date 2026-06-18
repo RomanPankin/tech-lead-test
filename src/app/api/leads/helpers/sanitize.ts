@@ -1,5 +1,5 @@
 import DOMPurify from 'isomorphic-dompurify';
-import type { LeadInput } from './leadSchema';
+import type { LeadInput } from '@/lib/leadSchema';
 
 // Matches ASCII control characters (0x00–0x1F and 0x7F). Built from a string
 // so no literal control bytes live in source.

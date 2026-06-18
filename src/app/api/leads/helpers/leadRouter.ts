@@ -1,4 +1,4 @@
-import type { LeadInput } from './leadSchema';
+import type { Country } from '@/lib/leadSchema';
 import { EmailAdapter, CrmApiAdapter, type DeliveryAdapter } from './delivery';
 
 /**
@@ -27,13 +27,13 @@ const adapters: Record<'email' | 'crm-api', DeliveryAdapter> = {
   'crm-api': new CrmApiAdapter(),
 };
 
-/** Resolve the ordered list of delivery adapters for a given lead. */
-export function resolveDestinations(lead: LeadInput): DeliveryAdapter[] {
-  const channels = ROUTING_TABLE[lead.country] ?? ['email'];
+/** Resolve the ordered list of delivery adapters for a country of origin. */
+export function resolveDestinations(country: Country): DeliveryAdapter[] {
+  const channels = ROUTING_TABLE[country] ?? ['email'];
   return channels.map((c) => adapters[c]);
 }
 
 /** Human-readable summary of where a lead will be sent (stored on the record). */
-export function describeDestination(lead: LeadInput): string {
-  return (ROUTING_TABLE[lead.country] ?? ['email']).join('+') + `:${lead.country}`;
+export function describeDestination(country: Country): string {
+  return (ROUTING_TABLE[country] ?? ['email']).join('+') + `:${country}`;
 }

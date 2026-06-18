@@ -24,29 +24,27 @@ export const SUPPORTED_COUNTRIES = [
   'AE',
 ] as const;
 
+/** Country of origin — derived server-side (geo-IP), never user input. */
+export type Country = (typeof SUPPORTED_COUNTRIES)[number];
+
 export const leadSchema = z.object({
   firstName: z.string().trim().min(1, 'First name is required').max(100),
   lastName: z.string().trim().min(1, 'Last name is required').max(100),
   email: z.string().trim().toLowerCase().email('Enter a valid email address').max(254),
   mobile: z.string().trim().regex(MOBILE_RE, 'Enter a valid mobile number'),
-  // Must be literally true — an unchecked box must fail validation.
   acceptTerms: z.literal(true, {
     errorMap: () => ({ message: 'You must accept the terms and conditions' }),
   }),
   // Marketing referral / attribution data (e.g. "Google", utm payload).
   marketingReferral: z.string().trim().max(500).optional().default(''),
   notes: z.string().trim().max(2000).optional().default(''),
-  // Country drives both delivery routing and data-residency rules.
-  country: z.enum(SUPPORTED_COUNTRIES).default('NZ'),
 });
 
 export type LeadInput = z.infer<typeof leadSchema>;
 
-/** Server-side payload includes the anti-spam token + honeypot field. */
+/** Server-side payload includes the anti-spam token */
 export const leadRequestSchema = leadSchema.extend({
   turnstileToken: z.string().optional().default(''),
-  // Honeypot: real users never fill this; bots usually do.
-  company_website: z.string().max(0, 'Bot detected').optional().default(''),
 });
 
 export type LeadRequest = z.infer<typeof leadRequestSchema>;

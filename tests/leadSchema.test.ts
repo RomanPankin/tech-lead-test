@@ -7,7 +7,6 @@ const valid = {
   email: 'ADA@Example.com',
   mobile: '+64 21 555 0000',
   acceptTerms: true,
-  country: 'NZ',
 };
 
 describe('leadSchema', () => {
@@ -30,20 +29,15 @@ describe('leadSchema', () => {
     expect(leadSchema.safeParse({ ...valid, mobile: 'abc' }).success).toBe(false);
   });
 
-  it('defaults country to NZ', () => {
-    const { country, ...noCountry } = valid;
-    expect(leadSchema.parse(noCountry).country).toBe('NZ');
+  it('does not accept a client-supplied country (derived server-side only)', () => {
+    const parsed = leadSchema.parse({ ...valid, country: 'US' });
+    expect('country' in parsed).toBe(false);
   });
 });
 
-describe('leadRequestSchema (honeypot)', () => {
-  it('rejects when the honeypot field is filled', () => {
-    const res = leadRequestSchema.safeParse({ ...valid, company_website: 'http://spam' });
-    expect(res.success).toBe(false);
-  });
-
-  it('accepts an empty honeypot', () => {
-    const res = leadRequestSchema.safeParse({ ...valid, company_website: '' });
-    expect(res.success).toBe(true);
+describe('leadRequestSchema', () => {
+  it('defaults the turnstile token to an empty string', () => {
+    const parsed = leadRequestSchema.parse(valid);
+    expect(parsed.turnstileToken).toBe('');
   });
 });

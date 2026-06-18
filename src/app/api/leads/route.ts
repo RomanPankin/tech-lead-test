@@ -1,21 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { leadRequestSchema } from '@/lib/leadSchema';
-import { handleLead } from '@/lib/handleLead';
-import { rateLimit } from '@/lib/rateLimit';
-import { verifyTurnstile } from '@/lib/antispam';
+import { handleLead } from './helpers/handleLead';
+import { rateLimit } from './helpers/rateLimit';
+import { verifyTurnstile } from './helpers/antispam';
+import { detectCountry } from './helpers/geo';
+import { clientIp } from './helpers/clientIp';
 
 // Node runtime: the lead pipeline uses node:fs / node:crypto.
 export const runtime = 'nodejs';
 
-function clientIp(req: NextRequest): string {
-  const fwd = req.headers.get('x-forwarded-for');
-  return fwd?.split(',')[0]?.trim() || 'unknown';
-}
-
 export async function POST(req: NextRequest) {
   const ip = clientIp(req);
 
-  // 1) Rate limit per IP (anti-spam / abuse).
+  // rate limit per IP (anti-spam / abuse).
   const limit = rateLimit(ip);
   if (!limit.ok) {
     return NextResponse.json(
@@ -24,7 +21,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 2) Parse + validate. Honeypot lives in the schema (company_website must be empty).
+  // rarse + validate the user-supplied fields.
   let body: unknown;
   try {
     body = await req.json();
@@ -40,16 +37,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 3) Verify anti-spam token.
+  // verify anti-spam token.
   const human = await verifyTurnstile(parsed.data.turnstileToken, ip);
   if (!human) {
     return NextResponse.json({ error: 'Spam check failed' }, { status: 403 });
   }
 
-  // 4) Run the pipeline. Strip transport-only fields before handing to handler.
-  const { turnstileToken, company_website, ...lead } = parsed.data;
+  // run the pipeline. Country of origin is derived server-side from geo-IP
+  // (never client input); transport-only fields are stripped first.
+  const { turnstileToken, ...lead } = parsed.data;
+  const country = detectCountry(req.headers);
+
   try {
-    const result = await handleLead(lead);
+    const result = await handleLead(lead, country);
+
     // 202: accepted + durably stored, even if downstream delivery is retrying.
     return NextResponse.json({ id: result.id, status: result.deliveryStatus }, { status: 202 });
   } catch (err) {

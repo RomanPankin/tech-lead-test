@@ -1,6 +1,6 @@
 import { appendFile, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import type { LeadStore, StoredLead, DeliveryStatus } from './types';
+import type { LeadStore, StoredLead, DeliveryStatus } from '../types';
 
 /**
  * File-backed lead store (JSON Lines) for the demo / local dev.
@@ -25,6 +25,7 @@ export class FileLeadStore implements LeadStore {
     } catch {
       return; // nothing persisted yet
     }
+
     const lines = raw.split('\n').filter(Boolean);
     const updated = lines.map((line) => {
       const lead = JSON.parse(line) as StoredLead;
@@ -34,17 +35,7 @@ export class FileLeadStore implements LeadStore {
       if (error) lead.lastError = error;
       return JSON.stringify(lead);
     });
+
     await writeFile(this.path, updated.join('\n') + '\n', 'utf8');
   }
-}
-
-let store: LeadStore | null = null;
-
-/** Lazily construct the configured store (singleton per process). */
-export function getLeadStore(): LeadStore {
-  if (!store) {
-    const path = process.env.LEAD_STORE_PATH ?? './data/leads.jsonl';
-    store = new FileLeadStore(path);
-  }
-  return store;
 }

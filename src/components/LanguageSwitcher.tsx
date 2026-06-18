@@ -17,7 +17,7 @@ const LANGUAGE_NAMES: Record<Locale, string> = {
  * next-intl's locale-aware navigation, so switching keeps the user on the same
  * page. `hrefLang` mirrors the SEO alternates declared in the layout metadata.
  */
-export default function LanguageSwitcher() {
+export function LanguageSwitcher() {
   const active = useLocale();
   const pathname = usePathname();
 

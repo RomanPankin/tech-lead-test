@@ -19,6 +19,7 @@ export async function verifyTurnstile(token: string, ip?: string): Promise<boole
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body,
     });
+
     const data = (await res.json()) as { success: boolean };
     return data.success === true;
   } catch {

@@ -3,9 +3,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
-import { Alert, Button, Checkbox, SimpleGrid, Stack, Textarea, TextInput } from '@mantine/core';
+import { Alert, Button, Checkbox, Textarea, TextInput } from '@mantine/core';
 import { leadSchema, type LeadInput } from '@/lib/leadSchema';
-import HoneypotField from './HoneypotField';
 import { useLeadSubmit } from './useLeadSubmit';
 
 type TextFieldConfig = {
@@ -35,12 +34,9 @@ const FIELD_ROWS: TextFieldConfig[][] = [
 ];
 
 /**
- * Lead capture form. Wires Zod validation to Mantine inputs via react-hook-form
- * `register`, and delegates the network call to `useLeadSubmit`. The honeypot
- * is the only custom field (no Mantine equivalent); everything else uses
- * Mantine components directly.
+ * Lead capture form
  */
-export default function LeadCaptureForm() {
+export function LeadCaptureForm() {
   const t = useTranslations('LeadForm');
   const { status, submit } = useLeadSubmit();
 
@@ -51,21 +47,21 @@ export default function LeadCaptureForm() {
     formState: { errors },
   } = useForm<LeadInput>({
     resolver: zodResolver(leadSchema),
-    defaultValues: { country: 'NZ' },
   });
 
-  async function onSubmit(data: LeadInput) {
+  const onSubmit = async (data: LeadInput) => {
     const ok = await submit(data);
     if (ok) reset();
-  }
+  };
 
-  function renderField(f: TextFieldConfig) {
+  const renderField = (f: TextFieldConfig) => {
     const common = {
       label: t(f.name),
       withAsterisk: f.required,
       error: errors[f.name]?.message,
       ...register(f.name),
     };
+
     return f.multiline ? (
       <Textarea key={f.name} autosize minRows={2} maxRows={4} {...common} />
     ) : (
@@ -77,7 +73,7 @@ export default function LeadCaptureForm() {
         {...common}
       />
     );
-  }
+  };
 
   if (status === 'success') {
     return (
@@ -88,36 +84,37 @@ export default function LeadCaptureForm() {
   }
 
   return (
-    <form id="lead-form" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <Stack gap="sm">
-        {status === 'error' && (
-          <Alert color="red" role="alert">
-            {t('errorGeneric')}
-          </Alert>
-        )}
+    <form
+      id="lead-form"
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className="flex flex-col gap-3"
+    >
+      {status === 'error' && (
+        <Alert color="red" role="alert">
+          {t('errorGeneric')}
+        </Alert>
+      )}
 
-        {FIELD_ROWS.map((row) =>
-          row.length > 1 ? (
-            <SimpleGrid key={row[0]!.name} cols={{ base: 1, xs: 2 }} spacing="sm">
-              {row.map(renderField)}
-            </SimpleGrid>
-          ) : (
-            renderField(row[0]!)
-          ),
-        )}
+      {FIELD_ROWS.map((row) =>
+        row.length > 1 ? (
+          <div key={row[0]!.name} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {row.map(renderField)}
+          </div>
+        ) : (
+          renderField(row[0]!)
+        ),
+      )}
 
-        <HoneypotField />
+      <Checkbox
+        label={t('acceptTerms')}
+        error={errors.acceptTerms?.message}
+        {...register('acceptTerms')}
+      />
 
-        <Checkbox
-          label={t('acceptTerms')}
-          error={errors.acceptTerms?.message}
-          {...register('acceptTerms')}
-        />
-
-        <Button type="submit" fullWidth mt="xs" loading={status === 'submitting'}>
-          {t('submit')}
-        </Button>
-      </Stack>
+      <Button type="submit" fullWidth mt="xs" loading={status === 'submitting'}>
+        {t('submit')}
+      </Button>
     </form>
   );
 }

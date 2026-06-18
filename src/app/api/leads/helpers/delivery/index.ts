@@ -17,11 +17,13 @@ export interface DeliveryAdapter {
  */
 export class EmailAdapter implements DeliveryAdapter {
   readonly name = 'email';
+
   async send(lead: StoredLead): Promise<DeliveryResult> {
     if (!process.env.EMAIL_PROVIDER_API_KEY) {
       // demo: pretend success, record where it would have gone
       return { ok: true, destination: 'email:demo-inbox' };
     }
+
     // Real impl: call ESP API here.
     return { ok: true, destination: `email:${lead.country}` };
   }
@@ -32,11 +34,13 @@ export class EmailAdapter implements DeliveryAdapter {
  */
 export class CrmApiAdapter implements DeliveryAdapter {
   readonly name = 'crm-api';
+
   async send(lead: StoredLead): Promise<DeliveryResult> {
     const base = process.env.CRM_API_BASE_URL;
     if (!base) {
       return { ok: true, destination: 'crm-api:demo' };
     }
+
     try {
       const res = await fetch(`${base}/leads`, {
         method: 'POST',
@@ -46,9 +50,11 @@ export class CrmApiAdapter implements DeliveryAdapter {
         },
         body: JSON.stringify(lead),
       });
+
       if (!res.ok) {
         return { ok: false, destination: `crm-api:${lead.country}`, error: `HTTP ${res.status}` };
       }
+
       return { ok: true, destination: `crm-api:${lead.country}` };
     } catch (err) {
       return {

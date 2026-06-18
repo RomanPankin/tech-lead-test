@@ -1,10 +1,12 @@
-import type { LeadInput } from './leadSchema';
+import type { LeadInput, Country } from '@/lib/leadSchema';
 
 export type DeliveryStatus = 'pending' | 'delivered' | 'failed';
 
 /** A lead as persisted: the validated input plus server-assigned metadata. */
 export interface StoredLead extends LeadInput {
   id: string;
+  /** Country of origin, derived server-side (geo-IP). */
+  country: Country;
   receivedAt: string; // ISO 8601
   /** Where this lead is destined, derived from type + country. */
   destination: string;
