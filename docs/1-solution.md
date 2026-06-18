@@ -65,66 +65,53 @@ flowchart TB
 
 ## 1.2 Architecture & technology choices
 
-**Frontend / framework.** Phase 1 is a **Next.js (React + TypeScript)** application
-rendered server-side (SSR) with incremental static regeneration (ISR). This choice
-is driven directly by the brief's non-functional requirements: server rendering
-gives crawlable HTML and fast first paint for **Lighthouse SEO + Performance**;
-React's mature ecosystem and component model make **WCAG 2.2 AA** achievable with
-semantic markup, managed focus and ARIA; and Next's built-in **internationalised
-routing** (`next-intl`) covers **10 markets with multilingual content**, locale-prefixed
-URLs, and `hreflang`/canonical tags. Structured **schema.org JSON-LD** and **OpenGraph/Twitter
-social meta** are emitted per page from the same metadata layer. This is the key
-lever for **Phase 2**: the mobile app is built in **React Native (Expo)**, reusing the
-same TypeScript language, validation schemas (a single shared Zod contract), API
-client and design tokens — so the "base technology stack" genuinely carries across
-web and mobile rather than being rebuilt.
+### Frontend / framework — Next.js (React + TypeScript), SSR + ISR
 
-**Content.** A **headless CMS** (Sanity or Contentful) lets non-technical authors
-manage multilingual content and localise per market without deploys. Content is
-pulled at build/ISR time and cached at the edge; webhooks trigger revalidation on
-publish. The **live 3rd-party data feed** is never called directly from the browser —
-it is proxied through a server route that caches and revalidates on a short TTL,
-which protects the upstream, hides credentials, and keeps the page fast and resilient
-if the feed is slow or down.
+- **Why SSR/ISR:** crawlable HTML + fast first paint → meets **Lighthouse SEO + Performance**.
+- **Accessibility:** React's component model makes **WCAG 2.2 AA** achievable (semantic markup, managed focus, ARIA).
+- **i18n:** `next-intl` covers **10 markets**, locale-prefixed URLs, `hreflang` + canonical tags.
+- **SEO/social:** **schema.org JSON-LD** + **OpenGraph/Twitter** meta emitted per page from one metadata layer.
+- **Phase 2 lever:** mobile app in **React Native (Expo)** reuses the same TypeScript, **shared Zod schemas**, API client and design tokens — the base stack carries across web + mobile rather than being rebuilt.
 
-**Lead capture & routing.** The form posts to a server API that runs a strict pipeline:
-**validate (Zod) → sanitise (strip HTML/scripts/control chars) → persist → route**.
-The lead is **written to durable storage _before_ any delivery is attempted**, which is
-what satisfies "leads must be stored in case of delivery failure". Delivery is then
-performed via a **durable queue with retry and a dead-letter queue**; a declarative
-**routing table keyed by lead type + country of origin** decides whether each lead
-goes to **transactional email**, a **3rd-party CRM/API**, or both. Failed deliveries
-retry with backoff and, if exhausted, remain flagged in storage for manual replay —
-no lead is ever silently lost.
+### Content & data feeds
 
-**Data residency & privacy.** Because audiences span 10 countries with differing
-privacy laws (GDPR, NZ/AU Privacy Acts, etc.), the lead store is **region-pinned**:
-PII is written to a database in (or appropriate to) the lead's own jurisdiction,
-**encrypted at rest (KMS)** and in transit, with **retention/erasure policies** and
-consent (`acceptTerms`) captured and timestamped on the record. The storage layer is
-behind an interface so the demo's file store and production's regional Postgres are
-interchangeable.
+- **Headless CMS** (Sanity / Contentful): non-technical authors manage multilingual content per market, no deploys. Pulled at build/ISR time, edge-cached, webhook-revalidated on publish.
+- **Live 3rd-party feed:** never called from the browser — proxied through a **server route** that caches + revalidates (short TTL). Protects the upstream, hides credentials, stays fast/resilient if the feed is slow or down.
 
-**Security & anti-spam.** Defence in depth: a **WAF + bot management/DDoS** layer at the
-edge, **CAPTCHA (Cloudflare Turnstile)** and **per-IP rate
-limiting** on the form, strict **input validation + sanitisation**, a strict
-**Content-Security-Policy** and security headers (HSTS, X-Content-Type-Options,
-frame-deny), and secrets held in a managed store/KMS — never in the client.
+### Lead capture & routing
 
-**Observability.** The system emits **structured logs, metrics and distributed traces**
-via **OpenTelemetry** to a backend such as **Datadog/Grafana**, with **Sentry** for error
-tracking. Alerting is tied to **SLOs** — submission error rate, delivery-failure/DLQ
-depth, feed-proxy latency, and Core Web Vitals regressions — routed to on-call via
-PagerDuty/Slack so problems surface before users report them.
+- **Pipeline:** **validate (Zod) → sanitise (strip HTML/scripts/control chars) → persist → route**.
+- **Durability:** lead is **stored _before_ any delivery is attempted** → satisfies "store leads in case of delivery failure".
+- **Routing:** declarative table keyed by **lead type + country of origin** → transactional **email**, **3rd-party CRM/API**, or both.
+- **Resilience:** delivery via **durable queue + retry + dead-letter queue**; exhausted failures stay flagged for manual replay — no lead silently lost.
 
-**Mobile accessibility (Phase 2).** The React Native app uses the platform
-accessibility APIs (iOS VoiceOver / Android TalkBack) through RN's `accessibilityLabel`,
-`accessibilityRole` and traits, respects OS-level dynamic font sizing and
-reduce-motion, and inherits the same validated, accessible form logic from the shared core.
+### Data residency & privacy
 
-**Hosting.** Next.js runs on **Vercel** (or AWS via container/SST) at the edge for the
-web tier, with **regional managed Postgres + queue** for data that must stay in-region.
-This keeps the global front-end fast while pinning regulated data appropriately.
+- **Region-pinned storage:** PII written to a DB in (or appropriate to) the lead's own jurisdiction — GDPR, NZ/AU Privacy Acts, etc.
+- **Protection:** **encrypted at rest (KMS)** + in transit; **retention/erasure policies**; consent (`acceptTerms`) captured + timestamped.
+- **Swappable:** storage sits behind an interface — demo file store ↔ production regional Postgres.
+
+### Security & anti-spam (defence in depth)
+
+- **Edge:** WAF + bot management / DDoS protection.
+- **Form:** CAPTCHA (**Cloudflare Turnstile**) + **per-IP rate limiting** + strict **input validation/sanitisation**.
+- **Headers:** strict **Content-Security-Policy**, HSTS, X-Content-Type-Options, frame-deny.
+- **Secrets:** held in a managed store / KMS — never in the client.
+
+### Observability
+
+- **Telemetry:** structured **logs, metrics, distributed traces** via **OpenTelemetry** → Datadog/Grafana; **Sentry** for errors.
+- **Alerting:** tied to **SLOs** — submission error rate, delivery-failure/DLQ depth, feed-proxy latency, Core Web Vitals — routed to on-call (PagerDuty/Slack).
+
+### Mobile accessibility (Phase 2)
+
+- Uses platform a11y APIs (**iOS VoiceOver / Android TalkBack**) via RN `accessibilityLabel`/`accessibilityRole`/traits.
+- Respects OS-level dynamic font sizing + reduce-motion; inherits the shared, validated, accessible form logic.
+
+### Hosting
+
+- Next.js on **Vercel** (or AWS via container/SST) at the edge for the web tier.
+- **Regional managed Postgres + queue** for data that must stay in-region — fast global front-end, regulated data pinned appropriately.
 
 ## 1.3 Explanation for a non-technical audience
 
