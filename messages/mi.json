@@ -1,0 +1,29 @@
+{
+  "Home": {
+    "brand": "Catch",
+    "eyebrow": "Whakapā mai",
+    "title": "Kōrero ki tō mātou tīma",
+    "intro": "Whakamōhiotia mātou mōu, ā, ka whakapā atu mātou — ahakoa kei hea koe.",
+    "benefit1": "He whakautu i roto i te rā pakihi kotahi",
+    "benefit2": "E wātea ana puta noa i ngā mākete me ngā reo 10",
+    "benefit3": "Ka whakamunatia ō taipitopito, kāore e hokona",
+    "formTitle": "Tukua mai ō taipitopito",
+    "formIntro": "Ko ngā āpure kua tohua ki te whetū (*) e hiahiatia ana.",
+    "secured": "Kua whakahaumarutia ō raraunga ki te whakamuna"
+  },
+  "LeadForm": {
+    "firstName": "Ingoa tuatahi",
+    "lastName": "Ingoa whānau",
+    "email": "Wāhitau īmēra",
+    "mobile": "Nama waea pūkoro",
+    "marketingReferral": "I pēhea koe i rongo mai ai mō mātou?",
+    "notes": "He aha atu hei mōhio mā mātou?",
+    "acceptTerms": "E whakaae ana ahau ki ngā ture me ngā tikanga",
+    "submit": "Tukua te pātai",
+    "submitting": "Te tuku…",
+    "successTitle": "Ngā mihi — kua riro i a mātou ō taipitopito",
+    "successBody": "Ka whakapā atu tō mātou tīma ākuanei.",
+    "errorGeneric": "I raru tētahi mea. Tēnā, ngana anō.",
+    "required": "*"
+  }
+}

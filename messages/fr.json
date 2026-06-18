@@ -1,0 +1,29 @@
+{
+  "Home": {
+    "brand": "Catch",
+    "eyebrow": "Contact",
+    "title": "Contactez notre équipe",
+    "intro": "Parlez-nous un peu de vous et nous vous recontacterons — où que vous soyez.",
+    "benefit1": "Une réponse sous un jour ouvré",
+    "benefit2": "Disponible dans 10 marchés et langues",
+    "benefit3": "Vos données sont chiffrées et jamais revendues",
+    "formTitle": "Envoyez-nous vos coordonnées",
+    "formIntro": "Les champs marqués d'un astérisque (*) sont obligatoires.",
+    "secured": "Protégé par anti-spam et chiffrement"
+  },
+  "LeadForm": {
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Adresse e-mail",
+    "mobile": "Numéro de mobile",
+    "marketingReferral": "Comment avez-vous entendu parler de nous ?",
+    "notes": "Autre chose à nous signaler ?",
+    "acceptTerms": "J'accepte les conditions générales",
+    "submit": "Envoyer la demande",
+    "submitting": "Envoi…",
+    "successTitle": "Merci — nous avons bien reçu vos informations",
+    "successBody": "Notre équipe vous contactera sous peu.",
+    "errorGeneric": "Une erreur s'est produite. Veuillez réessayer.",
+    "required": "*"
+  }
+}

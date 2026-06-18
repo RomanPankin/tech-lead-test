@@ -1,0 +1,29 @@
+{
+  "Home": {
+    "brand": "Catch",
+    "eyebrow": "Get in touch",
+    "title": "Talk to our team",
+    "intro": "Tell us a little about you and we'll be in touch — wherever you are.",
+    "benefit1": "A reply within one business day",
+    "benefit2": "Available across 10 markets and languages",
+    "benefit3": "Your details are encrypted and never sold",
+    "formTitle": "Send us your details",
+    "formIntro": "Fields marked with an asterisk (*) are required.",
+    "secured": "Secured with anti-spam and encryption"
+  },
+  "LeadForm": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email address",
+    "mobile": "Mobile number",
+    "marketingReferral": "How did you hear about us?",
+    "notes": "Anything else you'd like us to know?",
+    "acceptTerms": "I accept the terms and conditions",
+    "submit": "Submit enquiry",
+    "submitting": "Sending…",
+    "successTitle": "Thanks — we've got your details",
+    "successBody": "Our team will be in touch shortly.",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "required": "*"
+  }
+}

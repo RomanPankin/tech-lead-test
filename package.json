@@ -1,0 +1,55 @@
+{
+  "name": "global-leads-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Phase 1 responsive website with multilingual lead capture, CMS-driven content and live 3rd-party data feed.",
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "3.9.0",
+    "@mantine/core": "^7.17.8",
+    "@mantine/hooks": "^7.17.8",
+    "@tabler/icons-react": "^3.44.0",
+    "isomorphic-dompurify": "2.14.0",
+    "next": "14.2.5",
+    "next-intl": "^3.26.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-hook-form": "7.52.1",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.11",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@typescript-eslint/eslint-plugin": "7.16.1",
+    "@typescript-eslint/parser": "7.16.1",
+    "@vitejs/plugin-react": "4.3.1",
+    "@vitest/coverage-v8": "2.0.4",
+    "autoprefixer": "^10.5.0",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.5",
+    "eslint-config-prettier": "9.1.0",
+    "jsdom": "24.1.1",
+    "postcss": "^8.5.15",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^6.0.3",
+    "prettier": "3.3.3",
+    "tailwindcss": "^3.4.19",
+    "typescript": "5.5.3",
+    "vitest": "2.0.4"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  }
+}

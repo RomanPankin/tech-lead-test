@@ -1,0 +1,29 @@
+{
+  "Home": {
+    "brand": "Catch",
+    "eyebrow": "Kontakt",
+    "title": "Sprechen Sie mit unserem Team",
+    "intro": "Erzählen Sie uns etwas über sich und wir melden uns — wo immer Sie sind.",
+    "benefit1": "Antwort innerhalb eines Werktags",
+    "benefit2": "Verfügbar in 10 Märkten und Sprachen",
+    "benefit3": "Ihre Daten sind verschlüsselt und werden nie verkauft",
+    "formTitle": "Senden Sie uns Ihre Daten",
+    "formIntro": "Mit Sternchen (*) markierte Felder sind Pflichtfelder.",
+    "secured": "Geschützt durch Spam-Schutz und Verschlüsselung"
+  },
+  "LeadForm": {
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail-Adresse",
+    "mobile": "Handynummer",
+    "marketingReferral": "Wie haben Sie von uns erfahren?",
+    "notes": "Möchten Sie uns noch etwas mitteilen?",
+    "acceptTerms": "Ich akzeptiere die Allgemeinen Geschäftsbedingungen",
+    "submit": "Anfrage senden",
+    "submitting": "Senden…",
+    "successTitle": "Danke — wir haben Ihre Daten erhalten",
+    "successBody": "Unser Team meldet sich in Kürze bei Ihnen.",
+    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+    "required": "*"
+  }
+}

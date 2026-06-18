@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base utilities not covered by Mantine. Mantine owns typography, colours,
+   spacing and form controls; Tailwind utilities handle layout/spacing in JSX.
+   The two rules below stay as plain CSS because they target pseudo-states /
+   intentionally off-screen elements that read clearer here than inline. */
+
+/* Keyboard-only skip link — visible on focus (WCAG 2.4.1). */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  background: var(--mantine-color-indigo-6);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--mantine-radius-sm);
+  z-index: 1000;
+}
+
+/* Honeypot: removed from layout + a11y tree, still in the DOM for bots. */
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

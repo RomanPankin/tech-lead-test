@@ -1,0 +1,57 @@
+%% High-level architecture — source for docs/1-solution.md
+%% Render with: npx -p @mermaid-js/mermaid-cli mmdc -i hla.mmd -o hla.png
+flowchart TB
+  subgraph Client["Client layer"]
+    WEB["Phase 1: Responsive Website (Next.js / React, SSR + ISR)"]
+    APP["Phase 2: Mobile App (React Native / Expo — shared TS core)"]
+  end
+
+  subgraph Edge["Edge / Delivery"]
+    CDN["CDN + Edge cache"]
+    WAF["WAF / DDoS + Bot mgmt (Cloudflare)"]
+  end
+
+  subgraph App["Application layer (Next.js server / API routes)"]
+    PAGES["Localised pages (10 markets, i18n, SEO, schema.org)"]
+    LEADAPI["Lead capture API: validate, sanitise, store, route"]
+    FEEDAPI["Live data feed proxy (cache + revalidate)"]
+  end
+
+  subgraph Content["Content & Data feeds"]
+    CMS["Headless CMS (Sanity / Contentful)"]
+    THIRD["3rd-party live feed API"]
+  end
+
+  subgraph Lead["Lead processing"]
+    QUEUE["Durable queue (SQS / Cloud Tasks)"]
+    DB[("Lead store — region-pinned Postgres, encrypted")]
+    ROUTER["Delivery router by lead type + country"]
+    DLQ["Dead-letter queue + retry"]
+  end
+
+  subgraph Dest["Destinations"]
+    EMAIL["Transactional email (SES / Postmark)"]
+    CRM["3rd-party CRM / APIs"]
+  end
+
+  subgraph Ops["Observability & Security"]
+    OTEL["Logs / metrics / traces (OpenTelemetry)"]
+    MON["Dashboards + Alerting (Datadog / Grafana, Sentry)"]
+    SECRET["Secrets / KMS"]
+  end
+
+  WEB --> CDN --> WAF --> PAGES
+  APP --> WAF
+  APP -->|REST/GraphQL| LEADAPI
+  PAGES --> CMS
+  PAGES --> FEEDAPI --> THIRD
+  WEB -->|submit| LEADAPI
+  LEADAPI --> DB
+  LEADAPI --> QUEUE --> ROUTER
+  ROUTER --> EMAIL
+  ROUTER --> CRM
+  ROUTER -.failure.-> DLQ -.retry.-> ROUTER
+  DLQ -.exhausted.-> DB
+  App --> OTEL --> MON
+  Lead --> OTEL
+  App --> SECRET
