@@ -24,31 +24,33 @@ analytics warehouse, content migration beyond launch set.
 
 ## 2.2 High-level estimate
 
-| #   | Workstream                                                             |   Est. (eng-days) |
-| --- | ---------------------------------------------------------------------- | ----------------: |
-| 1   | Discovery, technical design, environments, CI/CD scaffolding           |                10 |
-| 2   | Design system + accessible component library                           |                15 |
-| 3   | Core site build (layouts, navigation, responsive pages)                |                15 |
-| 4   | i18n + 10-market localisation framework (routing, hreflang, fallbacks) |                10 |
-| 5   | Headless CMS modelling + integration + editor onboarding               |                12 |
-| 6   | Live 3rd-party data feed proxy (cache, revalidate, resilience)         |                 8 |
-| 7   | Lead capture form + handler (validate/sanitise/store)                  |                 8 |
-| 8   | Lead routing, queue, retry/DLQ, email + CRM integrations               |                12 |
-| 9   | Data-residency storage + privacy/consent/retention                     |                 8 |
-| 10  | Anti-spam + security hardening (WAF, CAPTCHA, CSP, pen-test fixes)     |                 8 |
-| 11  | SEO + structured data + social meta + sitemaps                         |                 6 |
-| 12  | Accessibility implementation + audit + remediation (WCAG 2.2 AA)       |                 8 |
-| 13  | Observability: logging/metrics/tracing/dashboards/alerts               |                 7 |
-| 14  | Testing: unit/integration/e2e + Lighthouse CI + a11y automation        |                10 |
-| 15  | UAT, content load, launch, hypercare                                   |                 8 |
-|     | **Subtotal**                                                           |           **145** |
-|     | Project management / QA coordination (~15%)                            |                22 |
-|     | Contingency (~15%)                                                     |                25 |
-|     | **Total**                                                              | **~192 eng-days** |
+| #   | Workstream                                                              |  Est. (eng-days) |
+| --- | ----------------------------------------------------------------------- | ---------------: |
+| 1   | Discovery, technical design, environments, CI/CD scaffolding            |                8 |
+| 2   | Design / UX (design system, visual design)                              |                5 |
+| 3   | Core site build (layouts, navigation, responsive pages)                 |                3 |
+| 4   | i18n + 10-market localisation (routing, hreflang; FE + PM coordination) |                5 |
+| 5   | Headless CMS modelling + integration + editor onboarding                |                5 |
+| 6   | Live 3rd-party data feed proxy (cache, revalidate, resilience)          |                5 |
+| 7   | Lead capture form + handler (validate/sanitise/store)                   |                2 |
+| 8   | Lead routing, queue, retry/DLQ, email + CRM integrations                |                5 |
+| 9   | Data-residency storage + privacy/consent/retention                      |                5 |
+| 10  | Anti-spam + security hardening (WAF, CAPTCHA, CSP, pen-test fixes)      |                5 |
+| 11  | SEO + structured data + social meta + sitemaps                          |                1 |
+| 12  | Accessibility implementation + audit + remediation (WCAG 2.2 AA)        |                2 |
+| 13  | Observability: logging/metrics/tracing/dashboards/alerts                |                5 |
+| 14  | Testing: unit/integration/e2e + Lighthouse CI + a11y automation         |                5 |
+| 15  | UAT, content load, launch, hypercare                                    |               10 |
+|     | **Subtotal**                                                            |           **71** |
+|     | Project management / QA coordination (~15%)                             |               11 |
+|     | Contingency (~15%)                                                      |               11 |
+|     | **Total**                                                               | **~93 eng-days** |
 
-At a team of **~5 (2 FE, 1 BE/integrations, 1 design/UX, 0.5 QA, 0.5 PM/TL)** running in
-parallel, ~192 eng-days maps to roughly **13–15 calendar weeks** including overlap and
-ceremonies.
+At a team of **~5 (1 FE, 2 BE/integrations, 1 design/UX, 0.5 QA, 0.5 PM/TL)** running in
+parallel, ~93 eng-days maps to roughly **8–10 calendar weeks** including overlap and
+ceremonies. The mix is backend-weighted: the heavy work here is integrations (live
+feed, lead routing + queue/DLQ, data residency, observability), while the frontend is
+a fairly standard responsive build and localisation is largely PM/translation.
 
 ## 2.3 Timeline
 
@@ -56,41 +58,41 @@ ceremonies.
 
 ```mermaid
 gantt
-  title Phase 1 — Indicative Delivery Timeline (~14 weeks)
+  title Phase 1 — Indicative Delivery Timeline (~9 weeks)
   dateFormat  YYYY-MM-DD
   axisFormat  %b %d
 
   section Foundation
-  Discovery & technical design      :a1, 2026-07-06, 2w
+  Discovery & technical design      :a1, 2026-07-06, 1w
   Environments & CI/CD scaffolding  :a2, after a1, 1w
 
   section Build
-  Design system & a11y components   :b1, after a1, 3w
-  Core site + responsive pages      :b2, after b1, 3w
-  i18n & 10-market localisation     :b3, after b1, 2w
-  CMS modelling & integration       :b4, after b2, 3w
-  Live data feed proxy              :b5, after b2, 2w
+  Design / UX (design system)       :b1, after a1, 1w
+  Core site build (FE)              :b1b, after b1, 1w
+  i18n & 10-market localisation     :b2, after b1b, 1w
+  Live data feed proxy (BE)         :b3, after a2, 2w
+  CMS modelling & integration (BE)  :b4, after a2, 2w
 
   section Leads & Security
-  Lead capture form + handler       :c1, after b2, 2w
-  Routing, queue, retry, email/CRM  :c2, after c1, 3w
-  Data residency & privacy          :c3, after c1, 2w
+  Lead capture form + handler       :c1, after b1b, 1w
+  Routing, queue, retry, email/CRM  :c2, after b3, 1w
+  Data residency & privacy          :c3, after b4, 1w
   Anti-spam & security hardening    :c4, after c2, 2w
 
   section Quality & Launch
-  SEO & structured data             :d1, after b4, 2w
-  Accessibility audit & remediation :d2, after d1, 2w
-  Observability & alerting          :d3, after c2, 2w
-  Testing (e2e, Lighthouse CI)      :d4, after c4, 2w
-  UAT, content load & launch        :d5, after d4, 2w
+  SEO & structured data             :d1, after b2, 1w
+  Accessibility audit & remediation :d2, after d1, 1w
+  Observability & alerting          :d3, after c3, 1w
+  Testing (e2e, Lighthouse CI)      :d4, after c4, 1w
+  UAT, content load, launch & hypercare :d5, after c4, 2w
 ```
 
 **Milestones**
 
-- **M1 — Foundations ready** (end wk 3): design system, environments, CI/CD live.
-- **M2 — Functional site** (end wk 8): core pages, i18n, CMS, feed integrated in staging.
-- **M3 — Leads end-to-end** (end wk 11): capture → store → route with retry, security on.
-- **M4 — Launch ready** (end wk 14): WCAG 2.2 AA + Lighthouse targets met, UAT signed off.
+- **M1 — Foundations ready** (end wk 2): environments, CI/CD, design system underway.
+- **M2 — Functional site** (end wk 4): core pages, i18n, lead capture, feed + CMS integrating in staging.
+- **M3 — Integrations + security complete** (end wk 7): routing/retry, residency, observability, hardening.
+- **M4 — Launch ready** (end wk 9): WCAG 2.2 AA + Lighthouse targets met, testing + UAT signed off.
 
 ## 2.4 Assumptions
 

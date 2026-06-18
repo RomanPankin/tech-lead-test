@@ -1,30 +1,30 @@
 %% Phase 1 delivery timeline — source for docs/2-delivery-estimate-and-timeline.md
 %% Render with: npx -p @mermaid-js/mermaid-cli mmdc -i gantt.mmd -o gantt.png
 gantt
-  title Phase 1 — Indicative Delivery Timeline (~14 weeks)
+  title Phase 1 — Indicative Delivery Timeline (~9 weeks)
   dateFormat  YYYY-MM-DD
   axisFormat  %b %d
 
   section Foundation
-  Discovery & technical design      :a1, 2026-07-06, 2w
+  Discovery & technical design      :a1, 2026-07-06, 1w
   Environments & CI/CD scaffolding  :a2, after a1, 1w
 
   section Build
-  Design system & a11y components   :b1, after a1, 3w
-  Core site + responsive pages      :b2, after b1, 3w
-  i18n & 10-market localisation     :b3, after b1, 2w
-  CMS modelling & integration       :b4, after b2, 3w
-  Live data feed proxy              :b5, after b2, 2w
+  Design / UX (design system)       :b1, after a1, 1w
+  Core site build (FE)              :b1b, after b1, 1w
+  i18n & 10-market localisation     :b2, after b1b, 1w
+  Live data feed proxy (BE)         :b3, after a2, 2w
+  CMS modelling & integration (BE)  :b4, after a2, 2w
 
   section Leads & Security
-  Lead capture form + handler       :c1, after b2, 2w
-  Routing, queue, retry, email/CRM  :c2, after c1, 3w
-  Data residency & privacy          :c3, after c1, 2w
+  Lead capture form + handler       :c1, after b1b, 1w
+  Routing, queue, retry, email/CRM  :c2, after b3, 1w
+  Data residency & privacy          :c3, after b4, 1w
   Anti-spam & security hardening    :c4, after c2, 2w
 
   section Quality & Launch
-  SEO & structured data             :d1, after b4, 2w
-  Accessibility audit & remediation :d2, after d1, 2w
-  Observability & alerting          :d3, after c2, 2w
-  Testing (e2e, Lighthouse CI)      :d4, after c4, 2w
-  UAT, content load & launch        :d5, after d4, 2w
+  SEO & structured data             :d1, after b2, 1w
+  Accessibility audit & remediation :d2, after d1, 1w
+  Observability & alerting          :d3, after c3, 1w
+  Testing (e2e, Lighthouse CI)      :d4, after c4, 1w
+  UAT, content load, launch & hypercare :d5, after c4, 2w
